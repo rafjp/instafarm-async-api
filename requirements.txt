@@ -1,0 +1,17 @@
+aiofiles
+httptools
+marshmallow
+motor
+multidict
+packaging
+pip
+pymongo
+pyparsing
+PyYAML
+sanic-openapi
+sanic-routing
+sanic
+setuptools
+umongo
+websockets
+wheel

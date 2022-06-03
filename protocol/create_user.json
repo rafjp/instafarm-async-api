@@ -1,0 +1,15 @@
+{
+  "in":{
+      "type": "create_user",
+      "request": {
+        "user_name": "from package sender"
+      }
+    },
+  "out":
+  {
+    "type": "user_created",
+    "request": {
+      "user_id": "62426092d12457c80db2035e"
+    }
+  }
+}
