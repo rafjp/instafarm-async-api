@@ -16,7 +16,7 @@ class MBMessage(MBDocument):
     """
         The user_id_own is the user who can make a request to see messages sent to him
     """
-    user_id_own = fields.ObjectId()
+    user_id_own = fields.ObjectIdField()
     from_channel = fields.StrField()
     from_user_name = fields.StrField()
     message = fields.StrField()

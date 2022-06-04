@@ -58,6 +58,7 @@ class MBItem(MBDocument):
     @staticmethod
     def to_api(item: "MBItem"):
         return {
+            "item_id": str(item.id),
             "item_name": item.item_name,
             "item_description": item.item_description,
             "item_price": item.item_price,

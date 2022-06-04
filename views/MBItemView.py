@@ -74,15 +74,11 @@ async def create_new_item(request: Request):
 @doc.summary("Get item by id")
 @doc.consumes(
     doc.String(name="item_id", description="Item id"),
+    location="path",
     required=True,
 )
-@item_api.get("/")
-async def get_item(request: Request):
-
-    if "item_id" not in request.args:
-        return MBRequest.response_invalid_params(["item_id"])
-
-    item_id = request.args.get("item_id")
+@item_api.get("/<item_id>")
+async def get_item(request: Request, item_id: str):
 
     try:
         item_object_id = ObjectId(item_id)

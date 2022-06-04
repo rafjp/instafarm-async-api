@@ -31,6 +31,15 @@ class MBRequest:
                 "item_id": item_id
             }), status=400
         )
+    
+    @staticmethod
+    def invalid_commodity_id(commmodity: str):
+        return json(
+            PError.error_message({
+                "error": "Commodity id not found",
+                "commodity_id": commmodity
+            }), status=400
+        )
 
     @staticmethod
     def invalid_user_channel_id(channel_id: str):

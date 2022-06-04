@@ -1,5 +1,7 @@
 
 def is_a_valid_name(name: str):
+    if name is None:
+        return False
     if len(name) < 1:
         return False
     if not name.isalnum():
