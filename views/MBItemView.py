@@ -1,5 +1,3 @@
-from re import I
-from this import d
 from bson import ObjectId
 from bson.errors import InvalidId
 from sanic import Blueprint, json
@@ -111,3 +109,39 @@ async def list_items(request: Request):
         items.append(MBItem.to_api(item))
 
     return json({"items": items})
+
+
+@doc.summary("Register item category")
+@doc.consumes(
+    doc.String(name="item_id", description="Item id"),
+    location="path",
+)
+@doc.consumes(
+    doc.JsonBody(
+        {
+            "seed_stage_count": doc.Integer(description="Item stage count"),
+            "seed_stage_images": doc.List(items=doc.String(description="Item stage images")),
+            "seed_item_harvest_id": doc.String(description="Item harvest id"),
+            "seed_item_harvest_quantity": doc.Integer(description="Item harvest quantity"),
+            "seed_growth_time": doc.Integer(description="Item growth time"),
+        },
+    ),
+    location="body",
+)
+@item_api.put("category/seed/<item_id>")
+async def edit_item_category(request: Request, item_id: str):
+    item_category = "seed"
+    try:
+        item_object_id = ObjectId(item_id)
+    except InvalidId:
+        return MBRequest.invalid_item_id(item_id)
+
+    item = await MBItem.find_one({"id": item_object_id})
+    if item is None:
+        return MBRequest.invalid_item_id(item_id)
+
+    item = await MBItem.edit_category(
+        item, item_category, request.json
+    )
+
+    return json(MBItem.to_api(item))

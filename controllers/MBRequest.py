@@ -13,6 +13,23 @@ class MBRequest:
                 "params": params
             }), status=400
         )
+    @staticmethod
+    def response_not_enough_money(user_id: str):
+        return json(
+            PError.error_message({
+                "error": "not enough money",
+                "user_id": user_id
+            }), status=400
+        )
+    
+    @staticmethod
+    def invalid_field_id(field_id: str):
+        return json(
+            PError.error_message({
+                "error": "invalid field id",
+                "field_id": field_id
+            }), status=400
+        )
 
     @staticmethod
     def invalid_user_id(user_id: str):

@@ -154,12 +154,32 @@ async def list_items(request: Request):
 )
 @commodity_api.delete("/<commodity_id>")
 async def remove_commodity(request: Request, commodity_id: str):
-
     try:
         commodity_object_id = ObjectId(commodity_id)
     except InvalidId:
         return MBRequest.invalid_commodity_id(commodity_id)
 
-    status = await MBCommodity.remove(commodity_object_id)
+    commodity = await MBCommodity.find_one({"id": commodity_object_id})
+    await commodity.delete()
 
-    return json({"status": status})
+    return json({"deleted": commodity_id})
+
+@doc.summary("Sell commodity by id")
+@doc.consumes(
+    doc.String(name="commodity_id", description="Commodity id"),
+    location="path",
+    required=True,
+)
+@commodity_api.post("/<commodity_id>")
+async def sell_commodity(request: Request, commodity_id: str):
+
+    try:
+        commodity_object_id = ObjectId(commodity_id)
+    except InvalidId:
+        return MBRequest.invalid_commodity_id(commodity_id)
+    
+    commodity = await MBCommodity.find_one({"id": commodity_object_id})
+    if commodity is None:
+        return MBRequest.invalid_commodity_id(commodity_id)
+    
+    return json(await MBCommodity.sell_commodity(commodity))

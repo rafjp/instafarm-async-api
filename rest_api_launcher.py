@@ -4,6 +4,7 @@ from views.MBUserView import user_api
 from views.MBMessageView import message_api
 from views.MBItemView import item_api
 from views.MBCommodityView import commodity_api
+from views.MBFarmFieldView import farm_field_api
 
 from controllers.MBMongo import MBMongo
 
@@ -13,6 +14,7 @@ app.blueprint(user_api)
 app.blueprint(message_api)
 app.blueprint(item_api)
 app.blueprint(commodity_api)
+app.blueprint(farm_field_api)
 
 
 @app.before_server_start

@@ -3,6 +3,7 @@ from controllers.MBMongo import MBMongo
 from umongo import fields
 from models.MBDocument import MBDocument
 from models.MBItem import MBItem
+from models.MBUser import MBUser
 
 
 @MBMongo.instance.register
@@ -58,6 +59,17 @@ class MBCommodity(MBDocument):
         commodity.user_id_own = user_id_own
         await commodity.commit()
         return commodity
+    
+    @staticmethod
+    async def sell_commodity(
+        commodity: "MBCommodity",
+    ):
+        user = await MBUser.find_one({"id": commodity.user_id_own})
+        assert user is not None
+        user.capital += commodity.price
+        await user.commit()
+        await commodity.delete()
+        return await MBUser.to_api(user)
 
     @staticmethod
     async def to_api(commodity: "MBCommodity"):

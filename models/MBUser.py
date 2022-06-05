@@ -1,4 +1,3 @@
-from re import S
 from controllers.MBMongo import MBMongo
 from umongo import fields
 from models.MBDocument import MBDocument
