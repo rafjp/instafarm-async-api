@@ -49,7 +49,7 @@ async def buy_field(request: Request):
     required=True,
 )
 @farm_field_api.get("field/list")
-async def buy_field(request: Request):
+async def list_field(request: Request):
 
     user_id = request.args.get("user_id")
     user_object_id: ObjectId
@@ -60,7 +60,6 @@ async def buy_field(request: Request):
             return MBRequest.invalid_user_id(user_id)
 
     farmfields = []
-
     async for farmfield in MBFarmField.find({"user_id_own": user_object_id}):
         farmfield: MBFarmField
         farmfields.append(await MBFarmField.to_api(farmfield))
@@ -101,3 +100,48 @@ async def prepare_field(request: Request):
         return MBRequest.response_not_enough_money(farmfield.user_id_own)
 
     return json(await MBFarmField.to_api(farmfield))
+
+
+@doc.summary("Irrigate field")
+@doc.consumes(
+    doc.String(name="field_id", description="Farm field id"),
+    location="path",
+    required=True,
+)
+@farm_field_api.post("field/irrigate/<field_id>")
+async def irrigate_field(request: Request, field_id: str):
+    
+    farmfield_object_id: ObjectId
+    try:
+        farmfield_object_id = ObjectId(field_id)
+    except InvalidId:
+        return MBRequest.invalid_field_id(field_id)
+
+    farmfield: MBFarmField  = await MBFarmField.find_one({"id": farmfield_object_id})
+    if farmfield is None:
+        return MBRequest.response_invalid_params(["field_id"])
+    
+    await MBFarmField.irrigate_field(farmfield)
+
+    return json(await MBFarmField.to_api(farmfield))
+
+@doc.summary("Harvest field")
+@doc.consumes(
+    doc.String(name="field_id", description="Farm field id"),
+    location="path",
+    required=True,
+)
+@farm_field_api.post("field/harvest/<field_id>")
+async def harvest_field(request: Request, field_id: str):
+    
+    farmfield_object_id: ObjectId
+    try:
+        farmfield_object_id = ObjectId(field_id)
+    except InvalidId:
+        return MBRequest.invalid_field_id(field_id)
+
+    farmfield: MBFarmField  = await MBFarmField.find_one({"id": farmfield_object_id})
+    if farmfield is None:
+        return MBRequest.response_invalid_params(["field_id"])
+
+    return json(await MBFarmField.harvest_field(farmfield))

@@ -23,7 +23,7 @@ class MBFarmField(MBDocument):
     last_irrigation = fields.DateTimeField(
         default=datetime.utcnow() - timedelta(days=30)
     )
-    irrigation_computed = fields.BooleanField(default=False)
+    total_irrigation_computed = fields.IntegerField(default=0)
 
     # inteval in seconds
     irrigation_interval = fields.IntegerField(default=10)
@@ -80,42 +80,39 @@ class MBFarmField(MBDocument):
         )
 
     @staticmethod
-    async def __update_field(
+    async def update_field(
         field: "MBFarmField",
     ):
-        if (
-            not field.irrigation_computed
-            and not field.ready_to_harvest
-            and not field.harvested
-        ):
+        if not field.ready_to_harvest and not field.harvested:
             useful_time = (datetime.utcnow() - field.last_irrigation).total_seconds()
+            useful_time -= field.total_irrigation_computed
             if useful_time > field.irrigation_interval:
                 useful_time = field.irrigation_interval
 
-            field.time_left -= useful_time
-            if field.time_left < 0:
-                field.time_left = 0
-                field.ready_to_harvest = True
-                field.growing = False
+            if field.total_irrigation_computed < field.irrigation_interval:
+                field.time_left -= useful_time
+                if field.time_left < 0:
+                    field.time_left = 0
+                    field.ready_to_harvest = True
+                    field.growing = False
 
-            field.irrigation_computed = True
-            await field.commit()
+                field.total_irrigation_computed += useful_time
+                await field.commit()
 
     @staticmethod
     async def irrigate_field(
         field: "MBFarmField",
     ):
-        MBFarmField.__update_field(field)
         field.last_irrigation = datetime.utcnow()
-        field.irrigation_computed = False
+        field.total_irrigation_computed = 0
         await field.commit()
 
     @staticmethod
     async def harvest_field(
         field: "MBFarmField",
     ):
-        MBFarmField.__update_field(field)
-        if field.ready_to_harvest:
+        await MBFarmField.update_field(field)
+        if field.ready_to_harvest and not field.harvested:
             item: MBItem = await MBItem.find_one({"id": field.seed_item})
             user: MBUser = await MBUser.find_one({"id": field.user_id_own})
             commodity = await MBCommodity.create_commodity(
@@ -125,35 +122,49 @@ class MBFarmField(MBDocument):
                 user.id,
             )
             field.harvested = True
+            field.ready_to_harvest = False
             field.growing = False
             await field.commit()
-            return MBFarmField.to_api(field)
-        return MBFarmField.to_api(field)
+            field_dict = await MBFarmField.to_api(field)
+            commodity_dict = await MBCommodity.to_api(commodity)
+            field_dict.update(commodity_dict)
+            return field_dict
+        return await MBFarmField.to_api(field)
 
     @staticmethod
     async def to_api(
         field: "MBFarmField",
     ):
+        await MBFarmField.update_field(field)
+
+        irrigated = True
+        useful_time = (datetime.utcnow() - field.last_irrigation).total_seconds()
+        if useful_time > field.irrigation_interval:
+            irrigated = False
+
         dict_info = {
             "id": str(field.id),
             "seed_item": str(field.seed_item),
             "user_id_own": str(field.user_id_own),
             "growing": field.growing,
             "harvested": field.harvested,
+            "irrigated": irrigated,
         }
 
         if field.ready_to_harvest:
             dict_info["ready_to_harvest"] = True
 
         if field.growing:
-            dict_info.update({
-                "last_irrigation": field.last_irrigation.isoformat(),
-                "irrigation_interval": field.irrigation_interval,
-                "time_left": field.time_left,
-            })
-        
+            dict_info.update(
+                {
+                    "last_irrigation": field.last_irrigation.isoformat(),
+                    "irrigation_interval": field.irrigation_interval,
+                    "time_left": field.time_left,
+                }
+            )
+
         item = await MBItem.find_one({"id": field.seed_item})
         if item is not None:
             dict_info["item"] = MBItem.to_api(item)
-        
+
         return dict_info
