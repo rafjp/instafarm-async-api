@@ -1,0 +1,19 @@
+name: Deploy to prod server
+
+on:
+  # Triggers the workflow on push events but only for the staging branch
+  push:
+    branches: [ master ]
+    
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:          
+
+  deploy-to-prod-worker-1:
+    needs: exec-tests
+    uses: ./.github/workflows/deploy_to_server.yml
+    with:
+      server_ip: 168.138.131.32
+    secrets:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
