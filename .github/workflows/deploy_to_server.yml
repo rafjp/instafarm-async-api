@@ -19,11 +19,11 @@ jobs:
         
       - name: Delete useless files
         run: |
-          rm /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/.gitignore
-          rm /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/README.md
-          rm -rf /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/.git/
-          rm -rf /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/.github/
-          rm -rf /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/.vscode/
+          rm /home/runner/work/instafarm/instafarm/.gitignore
+          rm /home/runner/work/instafarm/instafarm/README.md
+          rm -rf /home/runner/work/instafarm/instafarm/.git/
+          rm -rf /home/runner/work/instafarm/instafarm/.github/
+          rm -rf /home/runner/work/instafarm/instafarm/.vscode/
         
       - name: Clean sanic folder
         continue-on-error: false
