@@ -9,9 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:          
-
   deploy-to-prod-worker-1:
-    needs: exec-tests
     uses: ./.github/workflows/deploy_to_server.yml
     with:
       server_ip: 168.138.131.32
