@@ -17,6 +17,14 @@ jobs:
       - name: Start repository
         uses: actions/checkout@v2
         
+      - name: Delete useless files
+        run: |
+          rm /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/.gitignore
+          rm /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/README.md
+          rm -rf /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/.git/
+          rm -rf /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/.github/
+          rm -rf /home/runner/work/Instabuy-Isa-Robot/Instabuy-Isa-Robot/.vscode/
+        
       - name: Clean sanic folder
         continue-on-error: false
         uses: appleboy/ssh-action@master
