@@ -1,0 +1,50 @@
+name: Deploy code to server
+
+on:
+  workflow_dispatch:
+    inputs:
+        server_ip: '168.138.131.32'
+  push:
+    branches:
+      - master
+    
+jobs:
+  deploy_to_server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start repository
+        uses: actions/checkout@v2
+        
+      - name: Clean sanic folder
+        continue-on-error: false
+        uses: appleboy/ssh-action@master
+        with:
+          script_stop: true
+          host: ${{ inputs.server_ip }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo rm -rf /home/ubuntu/sanic/
+      - name: Sync files for production
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: /home/runner/work/instafarm/instafarm
+          remote: /home/ubuntu/sanic
+          host: ${{ inputs.server_ip }}
+          username: ubuntu
+          privateKey: ${{ secrets.SSH_KEY }}
+          rmRemote: true
+
+      - name: Install packages and restart service
+        continue-on-error: false
+        uses: appleboy/ssh-action@master
+        with:
+          script_stop: true
+          host: ${{ inputs.server_ip }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ubuntu/sanic/
+            sudo python3 -m venv venv/
+            sudo venv/bin/python3 -m pip install -r requirements.txt
+            sudo systemctl restart instafarm
