@@ -1,11 +1,14 @@
 name: Deploy code to server
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
         server_ip:
           description: 'Server IP'
-          required: true
+          type: string
+    secrets:
+      SSH_KEY:
+        required: true
     
 jobs:
   deploy_to_server:
