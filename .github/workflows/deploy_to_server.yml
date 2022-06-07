@@ -3,10 +3,9 @@ name: Deploy code to server
 on:
   workflow_dispatch:
     inputs:
-        server_ip: '168.138.131.32'
-  push:
-    branches:
-      - master
+        server_ip:
+          description: 'Server IP'
+          required: true
     
 jobs:
   deploy_to_server:
