@@ -1,4 +1,3 @@
-import asyncio
 from sanic import Blueprint, Sanic
 from sanic_openapi import swagger_blueprint
 from controllers.MBAuth import MBAuth
@@ -19,6 +18,7 @@ group = Blueprint.group(
     farm_field_api,
     url_prefix="/api/"
 )
+
 
 app.blueprint(swagger_blueprint)
 app.blueprint(group)

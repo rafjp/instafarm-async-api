@@ -18,6 +18,7 @@ class MBUser(MBDocument):
     capital = fields.FloatField()
     user_email = fields.StrField()
     user_password = fields.StrField()
+    auth_scopes = fields.ListField(fields.StrField())
 
     @staticmethod
     def __generate_user_message_channel(co_seed: str):
@@ -51,6 +52,7 @@ class MBUser(MBDocument):
         if user_password is None:
             return None
         user.user_password = user_password
+        user.auth_scopes = ["user"]
         await user.commit()
         return user
 
