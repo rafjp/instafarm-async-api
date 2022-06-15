@@ -80,7 +80,6 @@ async def create_new_item(request: Request):
 @item_api.get("/<item_id>")
 @scoped(MBAuthScope.USER, require_all=False)
 async def get_item(request: Request, item_id: str):
-
     try:
         item_object_id = ObjectId(item_id)
     except InvalidId:
@@ -100,7 +99,6 @@ async def get_item(request: Request, item_id: str):
 @item_api.get("list")
 @scoped(MBAuthScope.USER, require_all=False)
 async def list_items(request: Request):
-
     item_category = request.args.get("item_category")
     query = {}
     if item_category is not None:

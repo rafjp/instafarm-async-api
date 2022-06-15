@@ -41,6 +41,24 @@ class MBRequest:
         )
     
     @staticmethod
+    def invalid_user_email(user_email: str):
+        return json(
+            PError.error_message({
+                "error": "User email is invalid",
+                "user_email": user_email
+            }), status=400
+        )
+    
+    @staticmethod
+    def invalid_user_password(password: str):
+        return json(
+            PError.error_message({
+                "error": "User password is invalid",
+                "user_password": password
+            }), status=400
+        )
+    
+    @staticmethod
     def invalid_item_id(item_id: str):
         return json(
             PError.error_message({

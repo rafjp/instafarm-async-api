@@ -32,27 +32,29 @@ class MBUser(MBDocument):
         user.name = name
         user.capital = 0.0
         user.message_channel = MBUser.__generate_user_message_channel(user.name)
+        if user_email is None:
+            return None
+        if user_password is None:
+            return None
+        user.auth_scopes = ["user"]
         return await MBUser.edit_user(user, name, user_email, user_password)
 
     @staticmethod
     async def edit_user(
         user: "MBUser",
         name: str = None,
-        capital: float = None,
         user_email: str = None,
         user_password: str = None,
+        capital: float = None,
     ):
         if name is not None:
             user.name = name
         if capital is not None:
             user.capital = capital
-        if user_email is None:
-            return None
-        user.user_email = user_email
-        if user_password is None:
-            return None
-        user.user_password = user_password
-        user.auth_scopes = ["user"]
+        if user_email is not None:
+            user.user_email = user_email
+        if user_password is not None:
+            user.user_password = user_password
         await user.commit()
         return user
 

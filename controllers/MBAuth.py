@@ -1,3 +1,4 @@
+from bson import ObjectId
 from sanic_jwt import initialize, exceptions
 import bcrypt
 
@@ -7,7 +8,12 @@ from models.MBUser import MBUser
 class MBAuth:
     @staticmethod
     def setup(app):
-        initialize(app, MBAuth.authenticate, add_scopes_to_payload=MBAuth.add_user_scope_payload)
+        initialize(
+            app,
+            MBAuth.authenticate,
+            add_scopes_to_payload=MBAuth.add_user_scope_payload,
+            retrieve_user=MBAuth.retrieve_user,
+        )
 
     @staticmethod
     async def user_password_token(user_password: str):
@@ -20,7 +26,14 @@ class MBAuth:
     @staticmethod
     async def verify_user_password(user_password: str, hashed_password: str):
         return bcrypt.checkpw(user_password.encode(), hashed_password.encode())
-    
+
+    @staticmethod
+    async def retrieve_user(request, payload, *args, **kwargs):
+        if not payload:
+            return None
+        user_id = payload.get("user_id", None)
+        return await MBUser.find_one({"id": ObjectId(user_id)})
+
     @staticmethod
     async def add_user_scope_payload(user, *args, **kwargs):
         return user["scopes"]
@@ -45,7 +58,4 @@ class MBAuth:
         if not await MBAuth.verify_user_password(password, user.user_password):
             raise exceptions.AuthenticationFailed("Password is incorrect.")
 
-        return {
-            "user_id": str(user.id),
-            "scopes": list(user.auth_scopes)
-        }
+        return {"user_id": str(user.id), "scopes": list(user.auth_scopes)}
