@@ -20,3 +20,10 @@ def is_a_valid_product_name(name: str):
     if len(name) > 30:
         return False
     return True
+
+def is_a_valid_password(password: str):
+    if not isinstance(password, str):
+        return False
+    if len(password) < 8:
+        return False
+    return True

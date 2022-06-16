@@ -2,7 +2,9 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from sanic import Blueprint, json
 from sanic.response import Request
+from sanic_jwt import inject_user, scoped
 from sanic_openapi import doc
+from controllers.MBAuthScope import MBAuthScope
 from models.MBCommodity import MBCommodity
 from models.MBFarmField import MBFarmField
 
@@ -14,53 +16,27 @@ farm_field_api = Blueprint("Farm", url_prefix="/farm/")
 
 
 @doc.summary("Buy new field")
-@doc.consumes(
-    doc.String(name="user_id", description="User"),
-    required=True,
-)
 @farm_field_api.post("field/buy")
-async def buy_field(request: Request):
-
-    user_id = request.args.get("user_id")
-    user_object_id: ObjectId
-    if user_id is not None:
-        try:
-            user_object_id = ObjectId(user_id)
-        except InvalidId:
-            return MBRequest.invalid_user_id(user_id)
-
-    user_count = await MBUser.count_documents({"id": user_object_id})
-    if user_count <= 0:
-        return MBRequest.invalid_user_id(user_id)
-
-    farmfield:MBFarmField  = await MBFarmField.create_farm_field(user_object_id)
+@inject_user()
+@scoped(MBAuthScope.USER, require_all=False)
+async def buy_field(request: Request, user: MBUser):
+    farmfield:MBFarmField  = await MBFarmField.create_farm_field(user.id)
     if farmfield is None:
-        return MBRequest.response_not_enough_money(user_id)
+        return MBRequest.response_not_enough_money(str(user.id))
 
     return json(await MBFarmField.to_api(farmfield))
 
 @doc.summary("List user farm fields")
-@doc.consumes(
-    doc.String(name="user_id", description="User"),
-    required=True,
-)
 @farm_field_api.get("field/list")
-async def list_field(request: Request):
-
-    user_id = request.args.get("user_id")
-    user_object_id: ObjectId
-    if user_id is not None:
-        try:
-            user_object_id = ObjectId(user_id)
-        except InvalidId:
-            return MBRequest.invalid_user_id(user_id)
-
+@inject_user()
+@scoped(MBAuthScope.USER, require_all=False)
+async def list_field(request: Request, user: MBUser):
     farmfields = []
-    async for farmfield in MBFarmField.find({"user_id_own": user_object_id}):
+    async for farmfield in MBFarmField.find({"user_id_own": user.id}):
         farmfield: MBFarmField
         farmfields.append(await MBFarmField.to_api(farmfield))
 
-    return json({"user_id": user_id, "farmfields": farmfields})
+    return json({"user_id": str(user.id), "farmfields": farmfields})
 
 
 @doc.summary("Prepare new field")
@@ -70,7 +46,9 @@ async def list_field(request: Request):
     required=True,
 )
 @farm_field_api.put("field/prepare")
-async def prepare_field(request: Request):
+@inject_user()
+@scoped(MBAuthScope.USER, require_all=False)
+async def prepare_field(request: Request, user: MBUser):
     
     commodity_id = request.args.get("commodity_id")
     commodity_object_id: ObjectId
@@ -94,6 +72,9 @@ async def prepare_field(request: Request):
     farmfield:MBFarmField  = await MBFarmField.prepare_field_from_commodity(farmfield_object_id, commodity)
     if farmfield is None:
         return MBRequest.response_not_enough_money(farmfield.user_id_own)
+    
+    if farmfield.user_id_own != user.id:
+        return MBRequest.response_flow_error("User id not match")
 
     return json(await MBFarmField.to_api(farmfield))
 
@@ -105,7 +86,9 @@ async def prepare_field(request: Request):
     required=True,
 )
 @farm_field_api.post("field/irrigate/<field_id>")
-async def irrigate_field(request: Request, field_id: str):
+@inject_user()
+@scoped(MBAuthScope.USER, require_all=False)
+async def irrigate_field(request: Request, field_id: str, user: MBUser):
     
     farmfield_object_id: ObjectId
     try:
@@ -119,6 +102,9 @@ async def irrigate_field(request: Request, field_id: str):
     
     await MBFarmField.irrigate_field(farmfield)
 
+    if farmfield.user_id_own != user.id:
+        return MBRequest.response_flow_error("User id not match")
+
     return json(await MBFarmField.to_api(farmfield))
 
 @doc.summary("Harvest field")
@@ -128,7 +114,9 @@ async def irrigate_field(request: Request, field_id: str):
     required=True,
 )
 @farm_field_api.post("field/harvest/<field_id>")
-async def harvest_field(request: Request, field_id: str):
+@inject_user()
+@scoped(MBAuthScope.USER, require_all=False)
+async def harvest_field(request: Request, field_id: str, user: MBUser):
     
     farmfield_object_id: ObjectId
     try:
@@ -139,5 +127,8 @@ async def harvest_field(request: Request, field_id: str):
     farmfield: MBFarmField  = await MBFarmField.find_one({"id": farmfield_object_id})
     if farmfield is None:
         return MBRequest.response_invalid_params(["field_id"])
+    
+    if farmfield.user_id_own != user.id:
+        return MBRequest.response_flow_error("User id not match")
 
     return json(await MBFarmField.harvest_field(farmfield))

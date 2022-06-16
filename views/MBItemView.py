@@ -2,8 +2,9 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from sanic import Blueprint, json
 from sanic.response import Request
+from sanic_jwt import scoped
 from sanic_openapi import doc
-
+from controllers.MBAuthScope import MBAuthScope
 from models.MBItem import MBItem
 from controllers.MBRequest import MBRequest
 from controllers import MBUtil
@@ -24,6 +25,7 @@ item_api = Blueprint("Items", url_prefix="/item/")
     required=True,
 )
 @item_api.put("edit")
+@scoped(MBAuthScope.ADMIN, require_all=False)
 async def create_new_item(request: Request):
 
     required = ["item_name", "item_description", "item_price"]
@@ -76,8 +78,8 @@ async def create_new_item(request: Request):
     required=True,
 )
 @item_api.get("/<item_id>")
+@scoped(MBAuthScope.USER, require_all=False)
 async def get_item(request: Request, item_id: str):
-
     try:
         item_object_id = ObjectId(item_id)
     except InvalidId:
@@ -95,8 +97,8 @@ async def get_item(request: Request, item_id: str):
     doc.String(name="item_category", description="Item category"),
 )
 @item_api.get("list")
+@scoped(MBAuthScope.USER, require_all=False)
 async def list_items(request: Request):
-
     item_category = request.args.get("item_category")
     query = {}
     if item_category is not None:
@@ -129,6 +131,7 @@ async def list_items(request: Request):
     location="body",
 )
 @item_api.put("category/seed/<item_id>")
+@scoped(MBAuthScope.ADMIN, require_all=False)
 async def edit_item_category(request: Request, item_id: str):
     item_category = "seed"
     try:
