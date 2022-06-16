@@ -14,6 +14,7 @@ class MBAuth:
             add_scopes_to_payload=MBAuth.add_user_scope_payload,
             retrieve_user=MBAuth.retrieve_user,
             blueprint_name="Auth",
+            url_prefix='/api/auth',
             secret="4312df96-ea96-4046-a355-7138c58cc6a2",
         )
 

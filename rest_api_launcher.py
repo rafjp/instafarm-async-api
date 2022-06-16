@@ -18,8 +18,7 @@ app.config["API_SECURITY_DEFINITIONS"] = {
     "OAuth2": {
         "type": "oauth2",
         "flow": "application",
-        "tokenUrl": f"{SANIC_HOST}/auth",
-        "name": "email",
+        "tokenUrl": f"{SANIC_HOST}/api/auth"
     }
 }
 
