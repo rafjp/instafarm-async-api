@@ -102,3 +102,12 @@ class MBRequest:
                 "params": params
             }), status=400
         )
+    
+    @staticmethod
+    def response_flow_error(params: dict):
+        return json(
+            PError.error_message({
+                "error": "invalid system flow",
+                "params": params
+            }), status=400
+        )
