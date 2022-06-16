@@ -16,9 +16,9 @@ message_api = Blueprint("Message", url_prefix="/message/")
     doc.String(name="to_message_channel", description="User message channel (to)", required=True),
     doc.String(name="message", description="Message to send", required=True)
 )
+@message_api.post("send")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@message_api.post("send")
 async def send_message(request: Request, user_from: MBUser):
     if "to_message_channel" not in request.args:
         return MBRequest.response_invalid_params(["to_message_channel"])
@@ -34,16 +34,16 @@ async def send_message(request: Request, user_from: MBUser):
 
 
 @doc.summary("Get user messages")
+@message_api.get("/<user_id>")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@message_api.get("/<user_id>")
 async def get_massages(request: Request, user: MBUser):
     return json(await PMessage.get_massages(user=user))
 
 
 @doc.summary("Delete all messages for the user")
+@message_api.delete("clean/<user_id>")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@message_api.delete("clean/<user_id>")
 async def remove_message(request: Request, user: MBUser):
     return json(await PMessage.clean_messages(user=user))

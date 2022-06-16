@@ -10,6 +10,18 @@ from controllers.MBMongo import MBMongo
 
 app = Sanic("coup_async_api")
 
+app.config["API_TITLE"] = "Instafarm API"
+app.config["API_CONTACT_EMAIL"] = "rrafaelljob@gmail.com"
+app.config["API_SECURITY"] = [{"OAuth2": []}]
+app.config["API_SECURITY_DEFINITIONS"] = {
+    "OAuth2": {
+        "type": "oauth2",
+        "flow": "application",
+        "tokenUrl": "http://localhost:8383/auth",
+        "name": "email",
+    }
+}
+
 group = Blueprint.group(
     user_api,
     message_api,
@@ -32,7 +44,7 @@ async def setup(_, __):
 def expose_routers():
     print("Exposing routers...")
     for route in app.router.routes_all:
-            print("/".join(route))
+        print("/".join(route))
 
 
 if __name__ == '__main__':

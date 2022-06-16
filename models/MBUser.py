@@ -1,3 +1,4 @@
+from MBDefine import USER_BASE_CAPITAL
 from controllers.MBMongo import MBMongo
 from umongo import fields
 from models.MBDocument import MBDocument
@@ -30,7 +31,7 @@ class MBUser(MBDocument):
     async def create_user(name: str, user_email: str, user_password: str):
         user: MBUser = MBUser()
         user.name = name
-        user.capital = 0.0
+        user.capital = USER_BASE_CAPITAL
         user.message_channel = MBUser.__generate_user_message_channel(user.name)
         if user_email is None:
             return None

@@ -1,7 +1,7 @@
 from bson import ObjectId
 from sanic_jwt import initialize, exceptions
 import bcrypt
-
+from base64 import b64decode
 from models.MBUser import MBUser
 
 
@@ -14,7 +14,7 @@ class MBAuth:
             add_scopes_to_payload=MBAuth.add_user_scope_payload,
             retrieve_user=MBAuth.retrieve_user,
             blueprint_name="Auth",
-            secret="4312df96-ea96-4046-a355-7138c58cc6a2"
+            secret="4312df96-ea96-4046-a355-7138c58cc6a2",
         )
 
     @staticmethod
@@ -34,7 +34,8 @@ class MBAuth:
         if not payload:
             return None
         user_id = payload.get("user_id", None)
-        return await MBUser.find_one({"id": ObjectId(user_id)})
+        user = await MBUser.find_one({"id": ObjectId(user_id)})
+        return user if request.raw_url.decode() != "/auth/me" else (await MBUser.to_api(user))
 
     @staticmethod
     async def add_user_scope_payload(user, *args, **kwargs):
@@ -42,13 +43,29 @@ class MBAuth:
 
     @staticmethod
     async def authenticate(request, *args, **kwargs) -> MBUser:
+        auth_base64 = request.headers.get("Authorization", None)
+
+        username: str
+        password: str
+
         try:
-            username = request.json.get("email", None)
-            password = request.json.get("password", None)
+            if auth_base64 is not None:
+                auth_type, auth_token = auth_base64.split(" ")
+                if auth_type != "Basic":
+                    raise exceptions.AuthenticationFailed(
+                        "Invalid authorization type, must be Basic"
+                    )
+                username, password = b64decode(auth_token).decode().split(":")
+            else:
+                username = request.json.get("email", None)
+                password = request.json.get("password", None)
         except Exception as exception:
             raise exceptions.AuthenticationFailed(
-                "Missing email or password."
+                "Invalid authorization header, must be Basic <base64(username:password)>"
             ) from exception
+
+        if username is None or password is None:
+            raise exceptions.AuthenticationFailed("Missing email or password.")
 
         if not username or not password:
             raise exceptions.AuthenticationFailed("Missing email or password.")

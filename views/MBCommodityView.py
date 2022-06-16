@@ -24,9 +24,9 @@ commodity_api = Blueprint("Commodities", url_prefix="/commodity/")
     doc.String(name="commodity_id", description="Commodity id"),
     required=False,
 )
-@inject_user()
-@scoped(MBAuthScope.USER, require_all=False)
 @commodity_api.put("edit")
+@inject_user()
+@scoped(MBAuthScope.ADMIN, require_all=False)
 async def edit_commodity(request: Request, user: MBUser):
 
     required = ["item_id", "quandity", "price"]
@@ -93,13 +93,15 @@ async def edit_commodity(request: Request, user: MBUser):
     required=True,
 )
 @commodity_api.get("/<commodity_id>")
-async def get_item(request: Request, commodity_id: str):
+@inject_user()
+@scoped(MBAuthScope.USER, require_all=False)
+async def get_item(request: Request, commodity_id: str, user: MBUser):
     try:
         commodity_object_id = ObjectId(commodity_id)
     except InvalidId:
         return MBRequest.invalid_commodity_id(commodity_id)
 
-    commodity = await MBCommodity.find_one({"id": commodity_object_id})
+    commodity = await MBCommodity.find_one({"id": commodity_object_id, "user_id_own": user.id})
     if commodity is None:
         return MBRequest.invalid_commodity_id(commodity_id)
 
@@ -107,9 +109,9 @@ async def get_item(request: Request, commodity_id: str):
 
 
 @doc.summary("Get all commodities")
+@commodity_api.get("list")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@commodity_api.get("list")
 async def list_items(request: Request, user: MBUser):
     commodities = []
     async for commodity in MBCommodity.find({"user_id_own": user.id}):
@@ -124,9 +126,9 @@ async def list_items(request: Request, user: MBUser):
     location="path",
     required=True,
 )
+@commodity_api.delete("/<commodity_id>")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@commodity_api.delete("/<commodity_id>")
 async def remove_commodity(request: Request, commodity_id: str, user: MBUser):
     try:
         commodity_object_id = ObjectId(commodity_id)
@@ -149,9 +151,9 @@ async def remove_commodity(request: Request, commodity_id: str, user: MBUser):
     location="path",
     required=True,
 )
+@commodity_api.post("/<commodity_id>")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@commodity_api.post("/<commodity_id>")
 async def sell_commodity(request: Request, commodity_id: str, user: MBUser):
     try:
         commodity_object_id = ObjectId(commodity_id)

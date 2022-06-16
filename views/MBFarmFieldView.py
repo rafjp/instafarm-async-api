@@ -16,9 +16,9 @@ farm_field_api = Blueprint("Farm", url_prefix="/farm/")
 
 
 @doc.summary("Buy new field")
+@farm_field_api.post("field/buy")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@farm_field_api.post("field/buy")
 async def buy_field(request: Request, user: MBUser):
     farmfield:MBFarmField  = await MBFarmField.create_farm_field(user.id)
     if farmfield is None:
@@ -27,9 +27,9 @@ async def buy_field(request: Request, user: MBUser):
     return json(await MBFarmField.to_api(farmfield))
 
 @doc.summary("List user farm fields")
+@farm_field_api.get("field/list")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@farm_field_api.get("field/list")
 async def list_field(request: Request, user: MBUser):
     farmfields = []
     async for farmfield in MBFarmField.find({"user_id_own": user.id}):
@@ -45,9 +45,9 @@ async def list_field(request: Request, user: MBUser):
     doc.String(name="commodity_id", description="Commodity id of seed"),
     required=True,
 )
+@farm_field_api.put("field/prepare")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@farm_field_api.put("field/prepare")
 async def prepare_field(request: Request, user: MBUser):
     
     commodity_id = request.args.get("commodity_id")
@@ -85,9 +85,9 @@ async def prepare_field(request: Request, user: MBUser):
     location="path",
     required=True,
 )
+@farm_field_api.post("field/irrigate/<field_id>")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@farm_field_api.post("field/irrigate/<field_id>")
 async def irrigate_field(request: Request, field_id: str, user: MBUser):
     
     farmfield_object_id: ObjectId
@@ -113,9 +113,9 @@ async def irrigate_field(request: Request, field_id: str, user: MBUser):
     location="path",
     required=True,
 )
+@farm_field_api.post("field/harvest/<field_id>")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-@farm_field_api.post("field/harvest/<field_id>")
 async def harvest_field(request: Request, field_id: str, user: MBUser):
     
     farmfield_object_id: ObjectId
