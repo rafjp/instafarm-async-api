@@ -83,22 +83,9 @@ async def edit_user(request: Request):
 
     return json(await MBUser.to_api(user))
 
-@doc.summary("Get user by id")
-@doc.consumes(
-    doc.String(name="user_id", description="User id"),
-    location="path",
-    required=True,
-)
-@user_api.get("/<user_id>")
-@scoped(MBAuthScope.ADMIN, require_all=False)
-async def get_user(request: Request, user_id: str):
-    try:
-        user_object_id = ObjectId(user_id)
-    except InvalidId:
-        return MBRequest.invalid_user_id(user_id)
-
-    user = await MBUser.find_one({"id": user_object_id})
-    if user is None:
-        return MBRequest.invalid_user_id(user_id)
-
+@doc.summary("Get user info")
+@user_api.get("/")
+@inject_user()
+@scoped(MBAuthScope.USER, require_all=False)
+async def get_user(request: Request, user: MBUser):
     return json(await MBUser.to_api(user))
