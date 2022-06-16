@@ -1,5 +1,6 @@
 from sanic import Blueprint, Sanic
 from sanic_openapi import swagger_blueprint
+from MBDefine import SANIC_HOST
 from controllers.MBAuth import MBAuth
 from views.MBUserView import user_api
 from views.MBMessageView import message_api
@@ -17,7 +18,7 @@ app.config["API_SECURITY_DEFINITIONS"] = {
     "OAuth2": {
         "type": "oauth2",
         "flow": "application",
-        "tokenUrl": "http://localhost:8383/auth",
+        "tokenUrl": f"{SANIC_HOST}/auth",
         "name": "email",
     }
 }
