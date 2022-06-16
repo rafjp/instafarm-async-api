@@ -9,4 +9,4 @@
          \/     \/            \/           \/            \/
 ```
 
-Current server http://168.138.131.32:8383/swagger/#/
+Current server http://168.138.131.32/swagger/#/
