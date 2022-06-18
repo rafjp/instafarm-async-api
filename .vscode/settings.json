@@ -1,3 +1,25 @@
 {
-    "python.formatting.provider": "black"
+    "python.formatting.provider": "black",
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#af8c17",
+        "activityBar.activeBorder": "#942521",
+        "activityBar.background": "#423205",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#ca0000",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "sash.hoverBorder": "#684c00",
+        "statusBar.background": "#553e00",
+        "statusBar.foreground": "#ffffff",
+        "statusBarItem.hoverBackground": "#585300",
+        "statusBarItem.remoteBackground": "#375721",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#1c6400",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#21573299",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
 }
