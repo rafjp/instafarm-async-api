@@ -1,12 +1,14 @@
+from datetime import datetime, timedelta
 from email.policy import default
+
+import MBDefine
 from bson import ObjectId
 from controllers.MBMongo import MBMongo
 from umongo import fields
+
 from models.MBCommodity import MBCommodity
 from models.MBDocument import MBDocument
 from models.MBItem import MBItem
-from datetime import datetime, timedelta
-import MBDefine
 from models.MBUser import MBUser
 
 
@@ -46,7 +48,7 @@ class MBFarmField(MBDocument):
         user: MBUser = await MBUser.find_one({"id": user_id_own})
         current_field_price = (
             user_field_count + 1
-        ) ** 2 * MBDefine.FARM_FIELD_BASE_PRICE
+        ) ** MBDefine.FARM_FIELD_PRICE_EXP * MBDefine.FARM_FIELD_BASE_PRICE
         if user.capital < current_field_price:
             return None
         user.capital -= current_field_price
