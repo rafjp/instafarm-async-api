@@ -1,11 +1,15 @@
+from controllers.MBEnvironment import MBEnvironment
+
 MONGO_PASS = "MKaSj1eKDEZYWG2q"
 MONGO_IP = "168.138.131.32"
 MONGO_USER = "metaboard"
 MONGO_DB_NAME = "instafarm"
 MONGO_PORT = 27017
 
-DEBUG = False
-SANIC_HOST = "http://168.138.131.32" if not DEBUG else "http://localhost:8383"
+SANIC_PORT = 8383
+SANIC_HOST = "http://168.138.131.32"
 
 FARM_FIELD_BASE_PRICE = 100
 USER_BASE_CAPITAL = 64.00
+
+EXPOSE_ROUTERS = False
