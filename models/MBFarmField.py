@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from email.policy import default
 
 import MBDefine
 from bson import ObjectId

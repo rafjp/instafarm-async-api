@@ -36,6 +36,14 @@ app.blueprint(swagger_blueprint)
 app.blueprint(group)
 
 
+def add_cors_headers(request, response) -> None:
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+    }
+    response.headers.extend(headers)
+
+app.register_middleware(add_cors_headers, "response")
+
 @app.before_server_start
 async def setup(*args, **kwargs):
     MBMongo.connect()

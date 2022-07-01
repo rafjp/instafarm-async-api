@@ -10,3 +10,7 @@
 ```
 
 Current server http://168.138.131.32/swagger/#/
+
+Assets packages:
+https://danaida.itch.io/free-growing-plants-pack-32x32
+
