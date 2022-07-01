@@ -6,8 +6,10 @@ from sanic_openapi import swagger_blueprint
 
 import MBDefine
 from controllers.MBAuth import MBAuth
+from controllers.MBCors import add_cors_headers
 from controllers.MBEnvironment import MBEnvironment
 from controllers.MBMongo import MBMongo
+from controllers.MBOptions import setup_options
 from views.MBCommodityView import commodity_api
 from views.MBFarmFieldView import farm_field_api
 from views.MBItemView import item_api
@@ -35,13 +37,10 @@ group = Blueprint.group(
 app.blueprint(swagger_blueprint)
 app.blueprint(group)
 
+# Add OPTIONS handlers to any route that is missing it
+app.register_listener(setup_options, "before_server_start")
 
-def add_cors_headers(request, response) -> None:
-    headers = {
-        "Access-Control-Allow-Origin": "*",
-    }
-    response.headers.extend(headers)
-
+# Fill in CORS headers
 app.register_middleware(add_cors_headers, "response")
 
 @app.before_server_start
