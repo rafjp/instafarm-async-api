@@ -136,7 +136,8 @@ class MBFarmField(MBDocument):
     async def to_api(
         field: "MBFarmField",
     ):
-        await MBFarmField.update_field(field)
+        if field.growing:
+            await MBFarmField.update_field(field)
 
         irrigated = True
         useful_time = (datetime.utcnow() - field.last_irrigation).total_seconds()

@@ -1,13 +1,15 @@
 from bson import ObjectId
 from bson.errors import InvalidId
+from controllers import MBUtil
+from controllers.MBAuthScope import MBAuthScope
+from controllers.MBRequest import MBRequest
+from models.MBCommodity import MBCommodity
+from models.MBItem import MBItem
+from models.MBUser import MBUser
 from sanic import Blueprint, json
 from sanic.response import Request
-from sanic_jwt import scoped
+from sanic_jwt import inject_user, scoped
 from sanic_openapi import doc
-from controllers.MBAuthScope import MBAuthScope
-from models.MBItem import MBItem
-from controllers.MBRequest import MBRequest
-from controllers import MBUtil
 
 item_api = Blueprint("Items", url_prefix="/item/")
 
@@ -122,9 +124,13 @@ async def list_items(request: Request):
     doc.JsonBody(
         {
             "seed_stage_count": doc.Integer(description="Item stage count"),
-            "seed_stage_images": doc.List(items=doc.String(description="Item stage images")),
+            "seed_stage_images": doc.List(
+                items=doc.String(description="Item stage images")
+            ),
             "seed_item_harvest_id": doc.String(description="Item harvest id"),
-            "seed_item_harvest_quantity": doc.Integer(description="Item harvest quantity"),
+            "seed_item_harvest_quantity": doc.Integer(
+                description="Item harvest quantity"
+            ),
             "seed_growth_time": doc.Integer(description="Item growth time"),
         },
     ),
@@ -143,8 +149,41 @@ async def edit_item_category(request: Request, item_id: str):
     if item is None:
         return MBRequest.invalid_item_id(item_id)
 
-    item = await MBItem.edit_category(
-        item, item_category, request.json
-    )
+    item = await MBItem.edit_category(item, item_category, request.json)
 
     return json(MBItem.to_api(item))
+
+
+@doc.summary("Buy item by id")
+@doc.consumes(
+    doc.String(name="item_id", description="Item id"),
+    location="path",
+    required=True,
+)
+@item_api.post("/<item_id>")
+@inject_user()
+@scoped(MBAuthScope.USER, require_all=False)
+async def get_item(request: Request, item_id: str, user: MBUser):
+    try:
+        item_object_id = ObjectId(item_id)
+    except InvalidId:
+        return MBRequest.invalid_item_id(item_id)
+
+    item: MBItem = await MBItem.find_one({"id": item_object_id})
+    if item is None:
+        return MBRequest.invalid_item_id(item_id)
+
+    if item.item_price > user.capital:
+        return MBRequest.response_not_enough_money(item.item_price, user.capital)
+
+    commodity = await MBCommodity.create_commodity(
+        item.id,
+        1,
+        item.item_price,
+        user.id,
+    )
+
+    user.capital -= item.item_price
+    await user.commit()
+
+    return json(await MBCommodity.to_api(commodity))

@@ -18,31 +18,6 @@ from views.MBUserView import user_api
 
 app = Sanic("coup_async_api")
 
-app.config["API_TITLE"] = "Instafarm API"
-app.config["API_CONTACT_EMAIL"] = "rrafaelljob@gmail.com"
-app.config["API_SECURITY"] = [{"OAuth2": []}]
-app.config["API_SECURITY_DEFINITIONS"] = {
-    "OAuth2": {
-        "type": "oauth2",
-        "flow": "application",
-        "tokenUrl": f"{MBDefine.SANIC_HOST}/api/auth",
-    }
-}
-
-group = Blueprint.group(
-    user_api, message_api, item_api, commodity_api, farm_field_api, url_prefix="/api/"
-)
-
-
-app.blueprint(swagger_blueprint)
-app.blueprint(group)
-
-# Add OPTIONS handlers to any route that is missing it
-app.register_listener(setup_options, "before_server_start")
-
-# Fill in CORS headers
-app.register_middleware(add_cors_headers, "response")
-
 @app.before_server_start
 async def setup(*args, **kwargs):
     MBMongo.connect()
@@ -75,6 +50,31 @@ def main():
 
         if "routers" in sys.argv:
             MBDefine.EXPOSE_ROUTERS = True
+    
+    app.config["API_TITLE"] = "Instafarm API"
+    app.config["API_CONTACT_EMAIL"] = "rrafaelljob@gmail.com"
+    app.config["API_SECURITY"] = [{"OAuth2": []}]
+    app.config["API_SECURITY_DEFINITIONS"] = {
+        "OAuth2": {
+            "type": "oauth2",
+            "flow": "application",
+            "tokenUrl": f"{MBDefine.SANIC_HOST}/api/auth",
+        }
+    }
+
+    group = Blueprint.group(
+        user_api, message_api, item_api, commodity_api, farm_field_api, url_prefix="/api/"
+    )
+
+
+    app.blueprint(swagger_blueprint)
+    app.blueprint(group)
+
+    # Add OPTIONS handlers to any route that is missing it
+    app.register_listener(setup_options, "before_server_start")
+
+    # Fill in CORS headers
+    app.register_middleware(add_cors_headers, "response")
 
     MBAuth.setup(app)
     app.run(port=MBDefine.SANIC_PORT)
