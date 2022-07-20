@@ -14,7 +14,7 @@ class MBAuth:
             add_scopes_to_payload=MBAuth.add_user_scope_payload,
             retrieve_user=MBAuth.retrieve_user,
             blueprint_name="Auth",
-            url_prefix='/api/auth',
+            url_prefix="/api/auth",
             secret="4312df96-ea96-4046-a355-7138c58cc6a2",
         )
 
@@ -36,7 +36,11 @@ class MBAuth:
             return None
         user_id = payload.get("user_id", None)
         user = await MBUser.find_one({"id": ObjectId(user_id)})
-        return user if request.raw_url.decode() != "/auth/me" else (await MBUser.to_api(user))
+        return (
+            user
+            if request.raw_url.decode() != "/auth/me"
+            else (await MBUser.to_api(user))
+        )
 
     @staticmethod
     async def add_user_scope_payload(user, *args, **kwargs):
