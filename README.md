@@ -7,7 +7,7 @@ An asyncronous REST API demo project based on Python 3, Sanic framework, MongoDB
 |   |/    \ /  ___/\   __\__  \\   __\\__  \\_  __ \/     \ 
 |   |   |  \\___ \  |  |  / __ \|  |   / __ \|  | \/  Y Y  \
 |___|___|  /____  > |__| (____  /__|  (____  /__|  |__|_|  /
-         \/     \/            \/           \/            \/ 
+         \/     \/            \/           \/            \/
 ```
 
 ## Setting up the instafarm API service on Linux
