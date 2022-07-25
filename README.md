@@ -1,5 +1,6 @@
 # Instafarm Python 3 Async API
 
+An asyncronous REST API demo project based on Python 3, Sanic framework, MongoDB and Python Motor. 
 ```
 .___                 __          _____                      
 |   | ____   _______/  |______ _/ ____\____ _______  _____  
@@ -9,7 +10,7 @@
          \/     \/            \/           \/            \/
 ```
 
-# Setting up the instafarm API service on Linux
+## Setting up the instafarm API service on Linux
 
 Install Nginx
 ```
@@ -34,6 +35,17 @@ location /swagger/ {
 Restart the Nginx service
 ```
 $ sudo service nginx restart
+```
+
+### Setting up environment variables
+Open the file .profile at user home dir.
+Place the following code at the end of the file
+```
+export INSTAFARM_MONGO_PASS = "Mongo database password"
+export INSTAFARM_MONGO_IP = "Mongo database ip"
+export INSTAFARM_MONGO_USER = "Mongo database user"
+export INSTAFARM_MONGO_DB_NAME = "Mongo database name"
+export INSTAFARM_MONGO_PORT = Mongo database port
 ```
 
 ### Creating the instafarm service:

@@ -1,14 +1,8 @@
 from urllib.parse import quote_plus
-import motor.motor_asyncio
-from umongo.frameworks import MotorAsyncIOInstance
 
-from MBDefine import (
-    MONGO_IP,
-    MONGO_DB_NAME,
-    MONGO_PASS,
-    MONGO_USER,
-    MONGO_PORT
-)
+import motor.motor_asyncio
+from MBDefine import UserSettings
+from umongo.frameworks import MotorAsyncIOInstance
 
 
 class MBMongo:
@@ -18,7 +12,9 @@ class MBMongo:
 
     @staticmethod
     def connect():
-        url = f"mongodb://{quote_plus(MONGO_USER)}:{quote_plus(MONGO_PASS)}@{MONGO_IP}:{MONGO_PORT}/admin"
+        host = f"{UserSettings.INSTAFARM_MONGO_IP}:{UserSettings.INSTAFARM_MONGO_PORT}"
+        user = f"{quote_plus(UserSettings.INSTAFARM_MONGO_USER)}:{quote_plus(UserSettings.INSTAFARM_MONGO_PASS)}"
+        url = f"mongodb://{user}@{host}/admin"
         MBMongo.mongo_client = motor.motor_asyncio.AsyncIOMotorClient(url)
-        MBMongo.db = MBMongo.mongo_client[MONGO_DB_NAME]
+        MBMongo.db = MBMongo.mongo_client[UserSettings.INSTAFARM_MONGO_DB_NAME]
         MBMongo.instance.set_db(MBMongo.db)

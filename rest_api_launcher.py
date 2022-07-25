@@ -1,4 +1,4 @@
-import math
+import os
 import sys
 
 from sanic import Blueprint, Sanic
@@ -17,6 +17,7 @@ from views.MBMessageView import message_api
 from views.MBUserView import user_api
 
 app = Sanic("coup_async_api")
+
 
 @app.before_server_start
 async def setup(*args, **kwargs):
@@ -41,8 +42,23 @@ def expose_routers():
         print("[MB] router -> " + MBDefine.SANIC_HOST + "/" + "/".join(router))
 
 
+def load_user_settings():
+    for key in [
+        "INSTAFARM_MONGO_PASS",
+        "INSTAFARM_MONGO_IP",
+        "INSTAFARM_MONGO_USER",
+        "INSTAFARM_MONGO_DB_NAME",
+        "INSTAFARM_MONGO_PORT",
+    ]:
+        if key not in os.environ:
+            raise Exception(f"[MB] {key} is not defined in environment variables")
+
+        setattr(MBDefine.UserSettings, key, os.environ[key])
+
+
 def main():
     MBEnvironment.set_env(MBEnvironment.PRODUCTION)
+    load_user_settings()
     if len(sys.argv) > 1:
         if "debug" in sys.argv:
             MBEnvironment.set_env(MBEnvironment.DEVELOPMENT)
@@ -50,7 +66,7 @@ def main():
 
         if "routers" in sys.argv:
             MBDefine.EXPOSE_ROUTERS = True
-    
+
     app.config["API_TITLE"] = "Instafarm API"
     app.config["API_CONTACT_EMAIL"] = "rrafaelljob@gmail.com"
     app.config["API_SECURITY"] = [{"OAuth2": []}]
@@ -63,9 +79,13 @@ def main():
     }
 
     group = Blueprint.group(
-        user_api, message_api, item_api, commodity_api, farm_field_api, url_prefix="/api/"
+        user_api,
+        message_api,
+        item_api,
+        commodity_api,
+        farm_field_api,
+        url_prefix="/api/",
     )
-
 
     app.blueprint(swagger_blueprint)
     app.blueprint(group)

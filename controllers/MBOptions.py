@@ -7,18 +7,14 @@ from sanic.router import Route
 from controllers.MBCors import _add_cors_headers
 
 
-def _compile_routes_needing_options(
-    routes: Dict[str, Route]
-) -> Dict[str, FrozenSet]:
+def _compile_routes_needing_options(routes: Dict[str, Route]) -> Dict[str, FrozenSet]:
     needs_options = defaultdict(list)
 
     for route in routes.values():
         if "OPTIONS" not in route.methods:
             needs_options[route.uri].extend(route.methods)
 
-    return {
-        uri: frozenset(methods) for uri, methods in dict(needs_options).items()
-    }
+    return {uri: frozenset(methods) for uri, methods in dict(needs_options).items()}
 
 
 def _options_wrapper(handler, methods):
@@ -39,12 +35,10 @@ def setup_options(app: Sanic, _):
     app.router.reset()
     needs_options = _compile_routes_needing_options(app.router.routes_all)
     for uri, methods in needs_options.items():
-        if uri.startswith("/swagger"): continue 
+        if uri.startswith("/swagger"):
+            continue
 
         app.add_route(
-            _options_wrapper(options_handler, methods),
-            uri,
-            methods=["OPTIONS"]
+            _options_wrapper(options_handler, methods), uri, methods=["OPTIONS"]
         )
     app.router.finalize()
- 
