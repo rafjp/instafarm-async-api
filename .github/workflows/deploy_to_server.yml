@@ -19,11 +19,11 @@ jobs:
         
       - name: Delete useless files
         run: |
-          rm /home/runner/work/instafarm/instafarm/.gitignore
-          rm /home/runner/work/instafarm/instafarm/README.md
-          rm -rf /home/runner/work/instafarm/instafarm/.git/
-          rm -rf /home/runner/work/instafarm/instafarm/.github/
-          rm -rf /home/runner/work/instafarm/instafarm/.vscode/
+          rm /home/runner/work/instafarm-async-api/instafarm-async-api/.gitignore
+          rm /home/runner/work/instafarm-async-api/instafarm-async-api/README.md
+          rm -rf /home/runner/work/instafarm-async-api/instafarm-async-api/.git/
+          rm -rf /home/runner/work/instafarm-async-api/instafarm-async-api/.github/
+          rm -rf /home/runner/work/instafarm-async-api/instafarm-async-api/.vscode/
         
       - name: Clean sanic folder
         continue-on-error: false
@@ -38,7 +38,7 @@ jobs:
       - name: Sync files for production
         uses: garygrossgarten/github-action-scp@release
         with:
-          local: /home/runner/work/instafarm/instafarm
+          local: /home/runner/work/instafarm-async-api/instafarm-async-api
           remote: /home/ubuntu/sanic
           host: ${{ inputs.server_ip }}
           username: ubuntu
