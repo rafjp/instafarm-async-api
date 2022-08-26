@@ -1,8 +1,6 @@
-from bson import ObjectId
-from pkg_resources import require
-
 from controllers.MBMongo import MBMongo
 from umongo import fields
+
 from models.MBDocument import MBDocument
 
 
@@ -24,13 +22,13 @@ class MBItem(MBDocument):
     item_category = fields.StrField()
 
     """
-    Seed info 
+    Seed info
     """
     seed_stage_count = fields.IntegerField()
     seed_stage_images = fields.ListField(fields.StrField())
     seed_item_harvest_id = fields.ObjectIdField()
     seed_item_harvest_quantity = fields.IntegerField()
-    
+
     # growth time in seconds
     seed_growth_time = fields.IntegerField()
 
@@ -44,7 +42,12 @@ class MBItem(MBDocument):
     ):
         item: MBItem = MBItem()
         return await MBItem.edit_item(
-            item, item_name, item_description, item_price, item_image, item_category.lower()
+            item,
+            item_name,
+            item_description,
+            item_price,
+            item_image,
+            item_category.lower(),
         )
 
     @staticmethod
@@ -65,13 +68,9 @@ class MBItem(MBDocument):
             item.item_image = item_image
         await item.commit()
         return item
-    
+
     @staticmethod
-    async def edit_category(
-        item: "MBItem",
-        item_category: str,
-        category_body: dict
-    ):
+    async def edit_category(item: "MBItem", item_category: str, category_body: dict):
         item_category = item_category.lower()
         if item_category == "seed":
 
@@ -80,7 +79,7 @@ class MBItem(MBDocument):
                 "seed_stage_images",
                 "seed_item_harvest_id",
                 "seed_item_harvest_quantity",
-                "seed_growth_time",   
+                "seed_growth_time",
             ]:
                 if seed_attr in category_body:
 

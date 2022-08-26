@@ -1,9 +1,11 @@
-from MBDefine import USER_BASE_CAPITAL
-from controllers.MBMongo import MBMongo
-from umongo import fields
-from models.MBDocument import MBDocument
 import hashlib
 import random
+
+from controllers.MBMongo import MBMongo
+from MBDefine import USER_BASE_CAPITAL
+from umongo import fields
+
+from models.MBDocument import MBDocument
 
 
 @MBMongo.instance.register

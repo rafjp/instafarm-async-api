@@ -1,6 +1,7 @@
+from datetime import datetime
+
 from controllers.MBMongo import MBMongo
 from umongo import Document, fields
-from datetime import datetime
 
 
 @MBMongo.instance.register
@@ -12,4 +13,3 @@ class MBDocument(Document):
         super(MBDocument, self).__init__(*args, **kwargs)
 
     create_at = fields.DateField(default=datetime.utcnow())
-

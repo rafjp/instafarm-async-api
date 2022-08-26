@@ -1,6 +1,7 @@
 from bson import ObjectId
 from controllers.MBMongo import MBMongo
 from umongo import fields
+
 from models.MBDocument import MBDocument
 from models.MBItem import MBItem
 from models.MBUser import MBUser
@@ -59,7 +60,7 @@ class MBCommodity(MBDocument):
         commodity.user_id_own = user_id_own
         await commodity.commit()
         return commodity
-    
+
     @staticmethod
     async def sell_commodity(
         commodity: "MBCommodity",

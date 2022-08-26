@@ -101,7 +101,9 @@ async def get_item(request: Request, commodity_id: str, user: MBUser):
     except InvalidId:
         return MBRequest.invalid_commodity_id(commodity_id)
 
-    commodity = await MBCommodity.find_one({"id": commodity_object_id, "user_id_own": user.id})
+    commodity = await MBCommodity.find_one(
+        {"id": commodity_object_id, "user_id_own": user.id}
+    )
     if commodity is None:
         return MBRequest.invalid_commodity_id(commodity_id)
 

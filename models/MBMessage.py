@@ -1,7 +1,7 @@
 from bson import ObjectId
-
 from controllers.MBMongo import MBMongo
 from umongo import fields
+
 from models.MBDocument import MBDocument
 
 
@@ -22,7 +22,9 @@ class MBMessage(MBDocument):
     message = fields.StrField()
 
     @staticmethod
-    def register_message(user_id_own: ObjectId, from_channel: str, from_user_name: str, message: str):
+    def register_message(
+        user_id_own: ObjectId, from_channel: str, from_user_name: str, message: str
+    ):
         message_channel: MBMessage = MBMessage()
         message_channel.user_id_own = user_id_own
         message_channel.from_channel = from_channel

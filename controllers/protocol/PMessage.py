@@ -1,6 +1,6 @@
-from pymongo.cursor import Cursor
 from models.MBMessage import MBMessage
 from models.MBUser import MBUser
+from pymongo.cursor import Cursor
 
 
 async def send_message(user_from: MBUser, user_to: MBUser, message: str) -> dict:

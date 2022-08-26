@@ -163,7 +163,7 @@ async def edit_item_category(request: Request, item_id: str):
 @item_api.post("/<item_id>")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
-async def get_item(request: Request, item_id: str, user: MBUser):
+async def buy_item(request: Request, item_id: str, user: MBUser):
     try:
         item_object_id = ObjectId(item_id)
     except InvalidId:
