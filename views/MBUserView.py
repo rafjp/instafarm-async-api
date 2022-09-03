@@ -27,21 +27,25 @@ user_api = Blueprint("User", url_prefix="/user/")
 @scoped(MBAuthScope.USER, require_all=False)
 async def edit_user(request: Request, user: MBUser):
     user_email = request.args.get("user_email")
+    if user_email is None:
+        return MBRequest.invalid_user_email(user_email)
 
-    if user_email is not None:
-        if not EMAIL_REGEX.match(user_email):
-            return MBRequest.invalid_user_email(user_email)
+    if not EMAIL_REGEX.match(user_email):
+        return MBRequest.invalid_user_email(user_email)
 
     user_password = request.args.get("user_password")
-    if user_password is not None:
-        if not MBUtil.is_a_valid_password(user_password):
-            return MBRequest.invalid_user_password(user_password)
+    if user_password is None:
+        return MBRequest.invalid_user_password(user_password)
+
+    if not MBUtil.is_a_valid_password(user_password):
+        return MBRequest.invalid_user_password(user_password)
 
     user_name = request.args.get("user_name")
+    if user_name is None:
+        return MBRequest.response_invalid_params_data({"user_name": user_name})
 
-    if user_name is not None:
-        if not MBUtil.is_a_valid_name(user_name):
-            return MBRequest.response_invalid_params_data({"user_name": user_name})
+    if not MBUtil.is_a_valid_name(user_name):
+        return MBRequest.response_invalid_params_data({"user_name": user_name})
 
     new_user = await MBUser.edit_user(
         user,
@@ -65,11 +69,16 @@ async def edit_user(request: Request, user: MBUser):
 @user_api.post("/")
 async def create_user(request: Request):
     user_email = request.args.get("user_email")
+    if user_email is None:
+        return MBRequest.invalid_user_email(user_email)
 
     if not EMAIL_REGEX.match(user_email):
         return MBRequest.invalid_user_email(user_email)
 
     user_password = request.args.get("user_password")
+    if user_password is None:
+        return MBRequest.invalid_user_password(user_password)
+
     if not MBUtil.is_a_valid_password(user_password):
         return MBRequest.invalid_user_password(user_password)
 

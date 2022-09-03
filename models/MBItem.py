@@ -12,9 +12,6 @@ class MBItem(MBDocument):
     def __init__(self, *args, **kwargs):
         super(MBItem, self).__init__(*args, **kwargs)
 
-    """
-    The user_id_own is the user who can make a request to see messages sent to him
-    """
     item_name = fields.StrField(require=True, unique=True)
     item_description = fields.StrField(require=True)
     item_price = fields.FloatField(require=True)
