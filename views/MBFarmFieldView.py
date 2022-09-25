@@ -19,10 +19,9 @@ farm_field_api = Blueprint("Farm", url_prefix="/farm/")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
 async def buy_field(request: Request, user: MBUser):
-    farm_field: MBFarmField = await MBFarmField.create_farm_field(user.id)
+    farm_field: MBFarmField = await MBFarmField.create_farm_field(user)
     if farm_field is None:
         return MBRequest.response_not_enough_money(str(user.id))
-
     return json(await MBFarmField.to_api(farm_field))
 
 
@@ -35,8 +34,16 @@ async def list_field(request: Request, user: MBUser):
     async for farmfield in MBFarmField.find({"user_id_own": user.id}):
         farmfield: MBFarmField
         farmfields.append(await MBFarmField.to_api(farmfield))
-
     return json({"user_id": str(user.id), "farmfields": farmfields})
+
+
+@doc.summary("Show field price")
+@farm_field_api.get("field/price")
+@inject_user()
+@scoped(MBAuthScope.USER, require_all=False)
+async def get_field_price(request: Request, user: MBUser):
+    current_field_price: float = await MBFarmField.get_field_price(user_id_own=user.id)
+    return json({"user_id": str(user.id), "field_price": current_field_price})
 
 
 @doc.summary("Prepare new field")

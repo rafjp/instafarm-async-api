@@ -37,23 +37,27 @@ class MBFarmField(MBDocument):
 
     @staticmethod
     async def create_farm_field(
-        user_id_own: ObjectId,
+        user: MBUser,
     ):
         farm_field: MBFarmField = MBFarmField()
-        farm_field.user_id_own = user_id_own
-        user_field_count = await MBFarmField.count_documents(
-            {"user_id_own": user_id_own}
-        )
-        user: MBUser = await MBUser.find_one({"id": user_id_own})
-        current_field_price = (
-            user_field_count + 1
-        ) ** MBDefine.FARM_FIELD_PRICE_EXP * MBDefine.FARM_FIELD_BASE_PRICE
+        farm_field.user_id_own = user.id
+        current_field_price = await MBFarmField.get_field_price(user.id)
         if user.capital < current_field_price:
             return None
+
         user.capital -= current_field_price
         await user.commit()
         await farm_field.commit()
         return farm_field
+
+    @staticmethod
+    async def get_field_price(user_id_own: ObjectId):
+        user_field_count = await MBFarmField.count_documents(
+            {"user_id_own": user_id_own}
+        )
+        return (
+            user_field_count + 1
+        ) ** MBDefine.FARM_FIELD_PRICE_EXP * MBDefine.FARM_FIELD_BASE_PRICE
 
     @staticmethod
     async def prepare_field(field: "MBFarmField", seed_item: ObjectId):

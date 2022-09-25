@@ -28,12 +28,6 @@ commodity_api = Blueprint("Commodities", url_prefix="/commodity/")
 @inject_user()
 @scoped(MBAuthScope.ADMIN, require_all=False)
 async def edit_commodity(request: Request, user: MBUser):
-
-    required = ["item_id", "quandity", "price"]
-    for param in required:
-        if param not in request.args:
-            return MBRequest.response_invalid_params([param])
-
     try:
         price = float(request.args.get("price"))
     except ValueError:
@@ -50,38 +44,40 @@ async def edit_commodity(request: Request, user: MBUser):
 
     item_id = request.args.get("item_id")
     item_object_id: ObjectId
-    if item_id is not None:
-        try:
-            item_object_id = ObjectId(item_id)
-        except InvalidId:
-            return MBRequest.invalid_item_id(item_id)
+
+    try:
+        item_object_id = ObjectId(item_id)
+    except InvalidId:
+        return MBRequest.invalid_item_id(item_id)
+
+    item = await MBItem.find_one(item_object_id)
+    if item is None:
+        return MBRequest.invalid_item_id(item_id)
 
     commodity_id = request.args.get("commodity_id")
     commodity: MBCommodity = None
 
     if commodity_id is not None:
         commodity_object_id: ObjectId
-        if commodity_id is not None:
-            try:
-                commodity_object_id = ObjectId(commodity_id)
-            except InvalidId:
-                return MBRequest.invalid_user_id(commodity_id)
+        try:
+            commodity_object_id = ObjectId(commodity_id)
+        except InvalidId:
+            return MBRequest.invalid_user_id(commodity_id)
 
         commodity = await MBCommodity.find_one(commodity_object_id)
 
         if commodity is None:
             return MBRequest.invalid_commodity_id(commodity_id)
 
-    item = await MBItem.find_one(item_object_id)
-    if item is None:
-        return MBRequest.invalid_item_id(item_id)
-
     if commodity is None:
         commodity = await MBCommodity.create_commodity(
             item.id, quandity, price, user.id
         )
+
     else:
-        await MBCommodity.edit_commodity(commodity, item.id, quandity, price, user.id)
+        commodity = await MBCommodity.edit_commodity(
+            commodity, item.id, quandity, price, user.id
+        )
 
     return json(await MBCommodity.to_api(commodity))
 
