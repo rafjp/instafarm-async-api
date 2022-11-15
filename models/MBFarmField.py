@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 
-import MBDefine
 from bson import ObjectId
-from controllers.MBMongo import MBMongo
 from umongo import fields
 
+import MBDefine
+from controllers.MBMongo import MBMongo
 from models.MBCommodity import MBCommodity
 from models.MBDocument import MBDocument
 from models.MBItem import MBItem
@@ -150,7 +150,7 @@ class MBFarmField(MBDocument):
 
         dict_info = {
             "id": str(field.id),
-            "seed_item": str(field.seed_item),
+            "seed_item": str(field.seed_item) if field.seed_item is not None else None,
             "user_id_own": str(field.user_id_own),
             "growing": field.growing,
             "harvested": field.harvested,
