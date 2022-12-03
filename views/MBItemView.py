@@ -1,15 +1,16 @@
 from bson import ObjectId
 from bson.errors import InvalidId
+from sanic import Blueprint, json
+from sanic.response import Request
+from sanic_jwt import inject_user, scoped
+from sanic_openapi import doc
+
 from controllers import MBUtil
 from controllers.MBAuthScope import MBAuthScope
 from controllers.MBRequest import MBRequest
 from models.MBCommodity import MBCommodity
 from models.MBItem import MBItem
 from models.MBUser import MBUser
-from sanic import Blueprint, json
-from sanic.response import Request
-from sanic_jwt import inject_user, scoped
-from sanic_openapi import doc
 
 item_api = Blueprint("Items", url_prefix="/item/")
 
@@ -160,6 +161,10 @@ async def edit_item_category(request: Request, item_id: str):
     location="path",
     required=True,
 )
+@doc.consumes(
+    doc.Integer(name="quantity", description="Quantity"),
+    required=False,
+)
 @item_api.post("/<item_id>")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
@@ -173,17 +178,28 @@ async def buy_item(request: Request, item_id: str, user: MBUser):
     if item is None:
         return MBRequest.invalid_item_id(item_id)
 
-    if item.item_price > user.capital:
-        return MBRequest.response_not_enough_money(item.item_price, user.capital)
+    quantity = request.args.get("quantity")
+    if quantity is not None:
+        try:
+            quantity = int(quantity)
+        except (ValueError, TypeError):
+            MBRequest.response_invalid_params_data({"quantity": quantity})
+    else:
+        quantity = 1
+        
+    total_price = item.item_price * quantity
+
+    if total_price > user.capital:
+        return MBRequest.response_not_enough_money(str(user.id))
 
     commodity = await MBCommodity.create_commodity(
         item.id,
-        1,
+        quantity,
         item.item_price,
         user.id,
     )
 
-    user.capital -= item.item_price
+    user.capital -= total_price
     await user.commit()
 
     return json(await MBCommodity.to_api(commodity))

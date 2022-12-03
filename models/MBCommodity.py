@@ -1,7 +1,7 @@
 from bson import ObjectId
-from controllers.MBMongo import MBMongo
 from umongo import fields
 
+from controllers.MBMongo import MBMongo
 from models.MBDocument import MBDocument
 from models.MBItem import MBItem
 from models.MBUser import MBUser
@@ -49,27 +49,44 @@ class MBCommodity(MBDocument):
     @staticmethod
     async def edit_commodity(
         commodity: "MBCommodity",
-        item: ObjectId,
-        quantity: int,
-        price: float,
-        user_id_own: ObjectId,
+        item: ObjectId | None = None,
+        quantity: int | None = None,
+        price: float | None = None,
+        user_id_own: ObjectId | None = None,
     ):
-        commodity.item = item
-        commodity.quantity = quantity
-        commodity.price = price
-        commodity.user_id_own = user_id_own
+        if item is not None:
+            commodity.item = item
+
+        if quantity is not None:
+            commodity.quantity = quantity
+
+        if price is not None:
+            commodity.price = price
+
+        if user_id_own is not None:
+            commodity.user_id_own = user_id_own
+
         await commodity.commit()
         return commodity
 
     @staticmethod
-    async def sell_commodity(
-        commodity: "MBCommodity",
-    ):
+    async def sell_commodity(commodity: "MBCommodity", quantity: int | None = None):
         user = await MBUser.find_one({"id": commodity.user_id_own})
         assert user is not None
-        user.capital += commodity.price
+
+        item_quantity = commodity.quantity
+        if quantity is not None:
+            item_quantity = min(quantity, commodity.quantity)
+
+        user.capital += commodity.price * item_quantity
         await user.commit()
-        await commodity.delete()
+
+        if commodity.quantity <= item_quantity:
+            await commodity.delete()
+        else:
+            await MBCommodity.edit_commodity(
+                commodity=commodity, quantity=item_quantity
+            )
         return await MBUser.to_api(user)
 
     @staticmethod

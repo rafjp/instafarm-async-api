@@ -1,14 +1,15 @@
 from bson import ObjectId
 from bson.errors import InvalidId
+from sanic import Blueprint, json
+from sanic.response import Request
+from sanic_jwt import inject_user, scoped
+from sanic_openapi import doc
+
 from controllers.MBAuthScope import MBAuthScope
 from controllers.MBRequest import MBRequest
 from models.MBCommodity import MBCommodity
 from models.MBItem import MBItem
 from models.MBUser import MBUser
-from sanic import Blueprint, json
-from sanic.response import Request
-from sanic_jwt import inject_user, scoped
-from sanic_openapi import doc
 
 commodity_api = Blueprint("Commodities", url_prefix="/commodity/")
 
@@ -149,6 +150,10 @@ async def remove_commodity(request: Request, commodity_id: str, user: MBUser):
     location="path",
     required=True,
 )
+@doc.consumes(
+    doc.Integer(name="quantity", description="Quantity"),
+    required=False,
+)
 @commodity_api.post("/<commodity_id>")
 @inject_user()
 @scoped(MBAuthScope.USER, require_all=False)
@@ -164,4 +169,15 @@ async def sell_commodity(request: Request, commodity_id: str, user: MBUser):
     if commodity is None:
         return MBRequest.invalid_commodity_id(commodity_id)
 
-    return json(await MBCommodity.sell_commodity(commodity))
+    quantity = request.args.get("quantity")
+    if quantity is not None:
+        try:
+            quantity = int(quantity)
+        except (ValueError, TypeError):
+            MBRequest.response_invalid_params_data({"quantity": quantity})
+
+    return json(
+        await MBCommodity.sell_commodity(
+            commodity, quantity=quantity
+        )
+    )
