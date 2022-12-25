@@ -55,6 +55,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /home/ubuntu/sanic/
+            mv github/workspace/* .
             sudo python3 -m venv venv/
             sudo venv/bin/python3 -m pip install -r requirements.txt
             sudo systemctl restart instafarm
