@@ -67,7 +67,7 @@ WantedBy=multi-user.target
 ```
 
 ### Staging server
-http://168.138.131.32/swagger/#/
+http://152.67.59.74/swagger/#/
 
 ### Assets packages used at the staging server
 https://danaida.itch.io/free-growing-plants-pack-32x32
