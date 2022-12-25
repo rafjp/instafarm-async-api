@@ -12,6 +12,6 @@ jobs:
   deploy-to-prod-worker-1:
     uses: ./.github/workflows/deploy_to_server.yml
     with:
-      server_ip: 168.138.131.32
+      server_ip: 152.67.59.74
     secrets:
       SSH_KEY: ${{ secrets.SSH_KEY }}
