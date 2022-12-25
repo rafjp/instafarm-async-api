@@ -35,15 +35,15 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             sudo rm -rf /home/ubuntu/sanic/
+      
       - name: Sync files for production
-        uses: garygrossgarten/github-action-scp@release
+        uses: appleboy/scp-action@master
         with:
-          local: /home/runner/work/instafarm-async-api/instafarm-async-api
-          remote: /home/ubuntu/sanic
           host: ${{ inputs.server_ip }}
           username: ubuntu
-          privateKey: ${{ secrets.SSH_KEY }}
-          rmRemote: true
+          key: ${{ secrets.SSH_KEY }}
+          source: "/home/runner/work/instafarm-async-api/instafarm-async-api"
+          target: "/home/ubuntu/sanic"
 
       - name: Install packages and restart service
         continue-on-error: false
