@@ -97,7 +97,7 @@ def main():
     app.register_middleware(add_cors_headers, "response")
 
     MBAuth.setup(app)
-    app.run(port=MBDefine.SANIC_PORT)
+    app.run(port=MBDefine.SANIC_PORT, host=MBDefine.SANIC_HOST)
 
 
 if __name__ == "__main__":
